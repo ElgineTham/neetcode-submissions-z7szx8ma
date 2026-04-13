@@ -1,0 +1,23 @@
+class Solution:
+    def jump(self, nums: List[int]) -> int:
+        if len(nums) < 2:
+            return 0
+        
+        jumps = 0
+        l, r = 0, 0
+
+        while r < len(nums):
+            jumps += 1
+
+            max_jump = 0
+            for i in range(l, r+1):
+                max_jump = max(nums[i], max_jump)
+            
+            l = r + 1
+            r += max_jump
+
+            if r >= len(nums) - 1:
+                break
+        
+        return jumps
+            
