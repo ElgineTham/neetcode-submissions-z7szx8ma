@@ -1,43 +1,41 @@
 class Solution:
     def solve(self, board: List[List[str]]) -> None:
         rows, cols = len(board), len(board[0])
-        seen = set()
+        bdr_circ = deque()
+        perm = [[False] * cols for _ in range(rows)]
 
         for r in range(rows):
             if board[r][0] == "O":
-                board[r][0] = "T"
+                bdr_circ.append([r, 0])
+                perm[r][0] = True
+            
             if board[r][cols-1] == "O":
-                board[r][cols-1] = "T"
+                bdr_circ.append([r, cols-1])
+                perm[r][cols-1] = True
+        
         for c in range(cols):
             if board[0][c] == "O":
-                board[0][c] = "T"
-            if board[rows-1][c] == "O":
-                board[rows-1][c] = "T"
-
-        def dfs(r,c):
-            if (r < 0 or r >= rows or c < 0 or c >= cols or
-                (r,c) in seen or board[r][c] == "X"):
-                return
-
-            seen.add((r,c))
-            if board[r][c] == "O":
-                board[r][c] = "T"
+                bdr_circ.append([0, c])
+                perm[0][c] = True
             
-            dfs(r+1,c)
-            dfs(r-1,c)
-            dfs(r,c+1)
-            dfs(r,c-1)
+            if board[rows-1][c] == "O":
+                bdr_circ.append([rows-1, c])
+                perm[rows-1][c] = True
+        
+        directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        while bdr_circ:
+            r, c = bdr_circ.popleft()
+            for dr, dc in directions:
+                nr, nc = r + dr, c + dc
+                if (nr < 0 or nc < 0 or nr >= rows or nc >= cols or board[nr][nc] == "X"
+                    or perm[nr][nc]):
+                    continue
+                
+                perm[nr][nc] = True
+                bdr_circ.append([nr, nc])
         
         for r in range(rows):
-            dfs(r,0)
-            dfs(r,cols-1)
-        for c in range(cols):
-            dfs(0,c)
-            dfs(rows-1,c)
-
-        for r in range(rows):
             for c in range(cols):
-                if board[r][c] == "O":
+                if board[r][c] == "O" and not perm[r][c]:
                     board[r][c] = "X"
-                elif board[r][c] == "T":
-                    board[r][c] = "O"
+        
